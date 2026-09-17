@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: MIT
+name: Release (verify + publish + GitHub release)
+
+on:
+  workflow_dispatch:
+
+permissions: { }
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: Verify
+        run: mvn --show-version --batch-mode --errors --no-transfer-progress verify
+
+  release:
+    name: Release
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: maven-central
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure Git user for release commits
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+          server-id: central
+          server-username-env-var: MAVEN_USERNAME
+          server-password-env-var: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE
+
+      - name: Prepare release
+        run: mvn --batch-mode --no-transfer-progress -DskipTests -Darguments="-DskipTests" release:prepare
+
+      - name: Get release tag
+        id: release_tag
+        run: |
+          TAG="$(git describe --tags --abbrev=0)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        run: mvn --batch-mode --no-transfer-progress -DskipTests -Darguments="-DskipTests" release:perform
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Push release commits and tags
+        run: git push --follow-tags origin HEAD:${GITHUB_REF_NAME}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # 2.5.0
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            target/checkout/**/target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

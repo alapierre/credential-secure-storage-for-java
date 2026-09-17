@@ -9,6 +9,7 @@ import com.microsoft.credentialstorage.implementation.posix.internal.GLibLibrary
 import com.microsoft.credentialstorage.implementation.posix.libsecret.LibSecretLibrary.GError;
 import com.microsoft.credentialstorage.model.StoredSecret;
 import com.sun.jna.Memory;
+import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.PointerByReference;
@@ -203,34 +204,18 @@ public abstract class LibSecretBackedSecureStore<E extends StoredSecret> impleme
     }
 
     private static boolean isSimplePasswordAPISupported() {
-        // Make sure libsecret supports simple password API - this check does not require
-        // keyring to be unlocked first 
-        logger.debug("Try access libsecret with dummy data to make sure it's accessible...");
-        Pointer pPassword = null;
+        logger.debug("Checking whether libsecret provides the simple password API...");
         try {
-            final PointerByReference error = new PointerByReference();
-            pPassword = INSTANCE.secret_password_lookup_sync(
-                    SCHEMA,
-                    null,
-                    error,
-                    // The following two values should not match anything, calling this method purely
-                    // to determine existence of this function since we have no version information
-                    ATTRIBUTE_TYPE, "NullType",
-                    ATTRIBUTE_KEY, "NullKey",
-                    null
-            );
+            final NativeLibrary library = NativeLibrary.getInstance("secret-1");
+            library.getFunction("secret_password_lookup_sync");
+            library.getFunction("secret_password_store_sync");
+            library.getFunction("secret_password_clear_sync");
+            return true;
         } catch (UnsatisfiedLinkError error) {
             logger.warn("libsecret on this platform does not support the simple password API. " +
                     "We require libsecret-1.");
-
             return false;
-        } finally {
-            if (pPassword != null) {
-                INSTANCE.secret_password_free(pPassword);
-            }
         }
-
-        return true;
     }
 
     private static boolean isDefaultCollectionUnlocked() {
@@ -360,22 +345,17 @@ public abstract class LibSecretBackedSecureStore<E extends StoredSecret> impleme
 
                 schema.name = APP_NAME;
                 schema.flags = LibSecretLibrary.SECRET_SCHEMA_NONE;
-                //Type and Key, all fields are strings
-                schema.attributes = new LibSecretLibrary.SecretSchemaAttribute[4];
-                schema.attributes[0] = new LibSecretLibrary.SecretSchemaAttribute();
+                // Type, key, and account are all strings.
                 schema.attributes[0].name = ATTRIBUTE_TYPE;
                 schema.attributes[0].type = LibSecretLibrary.SECRET_SCHEMA_ATTRIBUTE_STRING;
 
-                schema.attributes[1] = new LibSecretLibrary.SecretSchemaAttribute();
                 schema.attributes[1].name = ATTRIBUTE_KEY;
                 schema.attributes[1].type = LibSecretLibrary.SECRET_SCHEMA_ATTRIBUTE_STRING;
 
-                schema.attributes[2] = new LibSecretLibrary.SecretSchemaAttribute();
                 schema.attributes[2].name = ATTRIBUTE_ACCOUNT;
                 schema.attributes[2].type = LibSecretLibrary.SECRET_SCHEMA_ATTRIBUTE_STRING;
 
-                // Terminating
-                schema.attributes[3] = new LibSecretLibrary.SecretSchemaAttribute();
+                // The first empty entry terminates the native fixed-size attribute array.
                 schema.attributes[3].name = null;
                 schema.attributes[3].type = 0;
 

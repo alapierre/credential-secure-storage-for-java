@@ -1,7 +1,19 @@
-NOTICES
+NOTICES AND ATTRIBUTION
 
-This repository incorporates material as listed below or described in the code.
+Credential Secure Storage for Java
 
-This product includes software from https://github.com/microsoft/vsts-authentication-library-for-java.
-Copyright (c) Microsoft. All rights reserved.
-Licensed under the MIT license.
+This project is an independently maintained fork of:
+https://github.com/microsoft/credential-secure-storage-for-java
+
+The original project incorporates material from:
+https://github.com/microsoft/vsts-authentication-library-for-java
+
+Original work:
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the MIT License.
+
+Modifications made in this fork are copyright their respective contributors
+and are distributed under the same MIT License.
+
+This project is not affiliated with, endorsed by, or supported by Microsoft.
+Microsoft and related names may be trademarks of Microsoft Corporation.

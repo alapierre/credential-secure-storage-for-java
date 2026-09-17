@@ -104,6 +104,14 @@ public interface LibSecretLibrary extends Library {
      */
     class SecretSchema extends Structure {
 
+        private static final int MAX_ATTRIBUTES = 32;
+
+        public SecretSchema() {
+            for (int i = 0; i < attributes.length; i++) {
+                attributes[i] = new SecretSchemaAttribute();
+            }
+        }
+
         @Override
         protected List<String> getFieldOrder() {
             return Arrays.asList("name", "flags", "attributes");
@@ -113,7 +121,7 @@ public interface LibSecretLibrary extends Library {
 
         public int flags;
 
-        public SecretSchemaAttribute[] attributes = new SecretSchemaAttribute[32];
+        public SecretSchemaAttribute[] attributes = new SecretSchemaAttribute[MAX_ATTRIBUTES];
     }
 
     /**

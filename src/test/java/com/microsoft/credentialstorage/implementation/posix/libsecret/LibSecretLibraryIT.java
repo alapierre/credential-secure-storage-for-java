@@ -26,8 +26,9 @@ public class LibSecretLibraryIT {
 
         underTest = LibSecretLibrary.INSTANCE;
         schema = new LibSecretLibrary.SecretSchema();
+        schema.name = "com.microsoft.credentialstorage.test";
         schema.flags = LibSecretLibrary.SECRET_SCHEMA_NONE;
-        schema.attributes = getAttributes();
+        setAttributes(schema.attributes);
     }
 
     @Test
@@ -165,24 +166,16 @@ public class LibSecretLibraryIT {
         return new String(password);
     }
 
-    private LibSecretLibrary.SecretSchemaAttribute[] getAttributes() {
+    private void setAttributes(final LibSecretLibrary.SecretSchemaAttribute[] attributes) {
         //create a testing schema's attributes
-        final LibSecretLibrary.SecretSchemaAttribute[] attributes
-                            = new LibSecretLibrary.SecretSchemaAttribute[3];
-
         // type = token type; key = url entry with prefixes
-        attributes[0] = new LibSecretLibrary.SecretSchemaAttribute();
         attributes[0].name = "Type";
         attributes[0].type = LibSecretLibrary.SECRET_SCHEMA_ATTRIBUTE_STRING;
-        attributes[1] = new LibSecretLibrary.SecretSchemaAttribute();
         attributes[1].name = "Key";
         attributes[1].type = LibSecretLibrary.SECRET_SCHEMA_ATTRIBUTE_STRING;
 
         // terminating attribute
-        attributes[2] = new LibSecretLibrary.SecretSchemaAttribute();
         attributes[2].name = null;
         attributes[2].type = 0;
-
-        return attributes;
     }
 }
