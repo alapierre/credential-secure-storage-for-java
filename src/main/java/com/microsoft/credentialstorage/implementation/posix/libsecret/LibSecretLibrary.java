@@ -19,7 +19,17 @@ import java.util.List;
  */
 public interface LibSecretLibrary extends Library {
 
-    LibSecretLibrary INSTANCE = Native.load("secret-1", LibSecretLibrary.class);
+    LibSecretLibrary INSTANCE = loadLibrary();
+
+    private static LibSecretLibrary loadLibrary() {
+        try {
+            return Native.load("secret-1", LibSecretLibrary.class);
+        } catch (final Throwable ignored) {
+            // Libsecret is an optional system dependency. Keep this interface usable for its
+            // structure definitions even when the native library is not installed.
+            return null;
+        }
+    }
 
     /**
      * Save secrets to disk

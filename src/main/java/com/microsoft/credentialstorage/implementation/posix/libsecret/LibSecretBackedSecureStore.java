@@ -272,7 +272,10 @@ public abstract class LibSecretBackedSecureStore<E extends StoredSecret> impleme
         if (isLinux()) {
             try {
                 // First make sure Libsecret library exists
-                LibSecretLibrary ignored = LibSecretLibrary.INSTANCE;
+                if (LibSecretLibrary.INSTANCE == null) {
+                    logger.info("libsecret library not loaded");
+                    return false;
+                }
 
                 // Try set the application name to avoid warnings while we initialize -- if this fails,
                 // it's okay, it is not end of the world but user will see some warnings printed on screen
