@@ -1,6 +1,7 @@
 # Credential Secure Storage for Java
 
 [![Java CI with Maven](https://github.com/alapierre/credential-secure-storage-for-java/actions/workflows/maven.yml/badge.svg)](https://github.com/alapierre/credential-secure-storage-for-java/actions/workflows/maven.yml)
+[![Maven Central](http://img.shields.io/maven-central/v/io.alapierre/credential-secure-storage)](https://search.maven.org/artifact/io.alapierre/credential-secure-storage)
 [![CodeQL](https://github.com/alapierre/credential-secure-storage-for-java/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/alapierre/credential-secure-storage-for-java/actions/workflows/codeql-analysis.yml)
 [![License](https://img.shields.io/github/license/alapierre/credential-secure-storage-for-java)](LICENSE.txt)
 

@@ -187,6 +187,11 @@ SOFTWARE
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.12.0</version>
+        <configuration>
+          <!-- Keep structural Javadoc validation, but do not require documentation for every
+               inherited implementation detail in this fork. -->
+          <doclint>all,-missing</doclint>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
