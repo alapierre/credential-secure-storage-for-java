@@ -27,7 +27,7 @@ SOFTWARE
 
   <groupId>io.alapierre</groupId>
   <artifactId>credential-secure-storage</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Credential Secure Storage</name>
